@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Heading, MultiStep, Text, TextInput } from '@ignite-ui/react'
+import { useRouter } from 'next/router'
 import { ArrowRight } from 'phosphor-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -10,8 +11,8 @@ const registerFormSchema = z.object({
   username: z
     .string()
     .min(3, { message: 'O usuário precisa de ao menos 3 letras' })
-    .regex(/^([a-z\\-]+)$/i, {
-      message: 'O usuário pode conter apenas letras e hifens',
+    .regex(/^([a-z\\-\\_]+)$/i, {
+      message: 'Apenas letras, hifen(-) e sublinha(_)',
     })
     .transform((username) => username.toLowerCase()),
   name: z
@@ -22,12 +23,18 @@ const registerFormSchema = z.object({
 type RegisterFormData = z.infer<typeof registerFormSchema>
 
 export default function Register() {
+  const router = useRouter()
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
+    values: {
+      username: String(router.query.username),
+      name: '',
+    },
   })
 
   const handleRegister = async (data: RegisterFormData) => {
