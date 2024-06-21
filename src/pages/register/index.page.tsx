@@ -35,7 +35,7 @@ export default function Register() {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
     values: {
-      username: String(router.query.username),
+      username: router.query.username ? String(router.query.username) : '',
       name: '',
     },
   })
