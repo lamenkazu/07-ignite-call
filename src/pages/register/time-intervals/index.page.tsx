@@ -11,6 +11,7 @@ import { ArrowRight } from 'phosphor-react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import { convertTimeStringToMinutes } from '@/utils/convert-time-string-to-minutes'
 import { getWeekDays } from '@/utils/get-week-days'
 
 import { Container, Header } from '../styles'
@@ -36,11 +37,36 @@ const timeIntervalsFormSchema = z.object({
     .length(7) // o array deve ter 7 dias sempre
     .transform((intervals) => intervals.filter((interval) => interval.enabled)) // Filtra os 7 dias trazendo apenas os habilitados
     .refine((intervals) => intervals.length > 0, {
+      // Não permite enviar o formulário sem datas selecionadas
       message: 'Você precisa selecionar pelo menos um dia da semana!',
-    }),
+    })
+    .transform((intervals) => {
+      // Converte o tempo em string dado pelo usuário em minutos
+      return intervals.map((interval) => {
+        return {
+          weekDay: interval.weekDay,
+          startTimeInMinutes: convertTimeStringToMinutes(interval.startTime),
+          endTimeInMinutes: convertTimeStringToMinutes(interval.endTime),
+        }
+      })
+    })
+    .refine(
+      (intervals) => {
+        // O horário de término deve ser pelo menos 1 hora distante do início.
+        return intervals.every(
+          (interval) =>
+            interval.endTimeInMinutes - 60 >= interval.startTimeInMinutes,
+        )
+      },
+      {
+        message:
+          'O horário de término deve ser pelo menos uma 1h à frente do início.',
+      },
+    ),
 })
 
-type TimeIntervalsFormData = z.infer<typeof timeIntervalsFormSchema>
+type TimeIntervalsFormInput = z.input<typeof timeIntervalsFormSchema>
+type TimeIntervalsFormOutput = z.output<typeof timeIntervalsFormSchema>
 
 export default function TimeIntervals() {
   const {
@@ -49,7 +75,7 @@ export default function TimeIntervals() {
     control,
     watch,
     formState: { isSubmitting, errors },
-  } = useForm<TimeIntervalsFormData>({
+  } = useForm<TimeIntervalsFormInput, unknown, TimeIntervalsFormOutput>({
     resolver: zodResolver(timeIntervalsFormSchema),
     defaultValues: {
       intervals: [
@@ -73,7 +99,7 @@ export default function TimeIntervals() {
 
   const weekDays = getWeekDays()
 
-  const handleSetTimeIntervals = (data: TimeIntervalsFormData) => {
+  const handleSetTimeIntervals = (data: TimeIntervalsFormOutput) => {
     console.log(data)
   }
 
