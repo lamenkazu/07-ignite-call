@@ -8,7 +8,7 @@ import {
   TimePickerList,
 } from './styles'
 
-export default function CalendarStep() {
+export const CalendarStep = () => {
   const isDateSelected = true
 
   return (
