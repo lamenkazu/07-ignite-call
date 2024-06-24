@@ -61,7 +61,26 @@ export default async function handle(
     },
   )
 
-  console.log(possibleTimes)
+  // Encontra os horários já escolhidos pelo usuario
+  const blockedTimes = await prisma.scheduling.findMany({
+    select: {
+      date: true,
+    },
+    where: {
+      user_id: user.id,
+      date: {
+        gte: referenceDate.set('hour', startHour).toDate(), // greater than or equal - maior ou igual
+        lte: referenceDate.set('hour', endHour).toDate(), // less than or equal - menor ou igual
+      },
+    },
+  })
 
-  return res.json({ possibleTimes })
+  // Passa por cada tempo possível validando que não existe nenhum registro na tabela de scheduling que bate com o horario possível
+  const availableTimes = possibleTimes.filter((time) => {
+    return !blockedTimes.some(
+      (blockedTime) => blockedTime.date.getHours() === time,
+    )
+  })
+
+  return res.json({ possibleTimes, availableTimes })
 }
