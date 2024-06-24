@@ -32,7 +32,7 @@ export default async function handle(
   const isPastDate = referenceDate.endOf('day').isBefore(new Date())
 
   if (isPastDate) {
-    return res.json({ availability: [] })
+    return res.json({ possibleTimes: [], availableTimes: [] })
   }
 
   // Busca no banco de dados o intervalo de tempo que o usuario indicou que vai estar disponível onde o dia da semana bate exatamente com a data que eu estou chamando a rota de disponibilidade
@@ -44,7 +44,7 @@ export default async function handle(
   })
 
   if (!userAvailability) {
-    return res.json({ availability: [] })
+    return res.json({ possibleTimes: [], availableTimes: [] })
   }
 
   const {
