@@ -28,6 +28,7 @@ type CalendarWeeks = CalendarWeek[]
 
 interface BlockedDates {
   blockedWeekDays: number[]
+  blockedDates: number[]
 }
 
 interface CalendarProps {
@@ -68,7 +69,7 @@ export const Calendar = ({ selectedDate, onDateSelected }: CalendarProps) => {
       const response = await api.get(`/users/${username}/blocked-dates`, {
         params: {
           year,
-          month,
+          month: month + 1, // no MySQL o mês começa com 1 e não 0, então preciso enviar para o backend +1 para me referir ao mês correto, já que no javascript o primeiro mês é o 0 e não 1
         },
       })
 
@@ -118,7 +119,8 @@ export const Calendar = ({ selectedDate, onDateSelected }: CalendarProps) => {
       ...daysInMonthArray.map((date) => {
         const disabled =
           date.endOf('day').isBefore(new Date()) ||
-          blockedDates.blockedWeekDays.includes(date.get('day'))
+          blockedDates.blockedWeekDays.includes(date.get('day')) ||
+          blockedDates.blockedDates.includes(date.get('date'))
 
         return { date, disabled }
       }),
