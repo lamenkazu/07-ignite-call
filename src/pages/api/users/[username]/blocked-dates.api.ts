@@ -12,11 +12,13 @@ export default async function handle(
   }
 
   const username = String(req.query.username)
-  const { year, month } = req.query
+  let { year, month } = req.query
 
   if (!year || !month) {
     return res.status(400).json({ message: 'Year or month not provided.' })
   }
+
+  month = String(month).padStart(2, '0') // Garantir que o mês tenha dois dígitos
 
   const user = await prisma.user.findUnique({
     where: {
@@ -43,5 +45,16 @@ export default async function handle(
     )
   })
 
-  return res.json({ blockedWeekDays })
+  console.log(user.id)
+  console.log(`${year}-${month}`)
+
+  const blockedDatesRaw = await prisma.$queryRaw`
+    SELECT *
+    FROM schedulings S
+
+    WHERE S.user_id = ${user.id} 
+    AND DATE_FORMAT(S.date, "%Y-%m") = ${`${year}-${month}`}
+  `
+
+  return res.json({ blockedWeekDays, blockedDatesRaw })
 }
