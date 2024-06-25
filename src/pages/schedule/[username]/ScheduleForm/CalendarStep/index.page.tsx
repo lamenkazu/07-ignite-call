@@ -23,7 +23,7 @@ interface CalendarStepProps {
   onSelectDateTime: (date: Date) => void
 }
 
-export const CalendarStep = ({ onSelectDateTime }: CalendarStepProps) => {
+export default function CalendarStep({ onSelectDateTime }: CalendarStepProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
   const router = useRouter()
