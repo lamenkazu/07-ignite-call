@@ -36,7 +36,7 @@ interface CalendarProps {
   onDateSelected: (date: Date) => void
 }
 
-export const Calendar = ({ selectedDate, onDateSelected }: CalendarProps) => {
+export const Calendar = ({ onDateSelected }: CalendarProps) => {
   const router = useRouter()
 
   const [currentDate, setCurrentDate] = useState(() => {
